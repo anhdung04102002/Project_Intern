@@ -26,7 +26,7 @@
     </div>
 
     <script>
-         document.getElementById('loginForm').addEventListener('submit', function (event) {
+        document.getElementById('loginForm').addEventListener('submit', function (event) {
             event.preventDefault();
 
             var email = document.getElementById('email').value;
@@ -49,20 +49,27 @@
                     return response.json();
                 })
                 .then(data => {
-                    localStorage.setItem('jwtToken', data.jwtToken); // Lưu token vào localStorage
-                    console.log('Token saved to localStorage:', data.jwtToken);
-                    // Sau khi lưu token, bạn có thể điều hướng người dùng hoặc thực hiện các tác vụ khác tại đây
-                    // Redirect to user management page or perform other tasks upon successful login
-                    window.location.href = 'adminAdd.html'; // Redirect to user management page
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        });
+                localStorage.setItem('jwtToken', data.jwtToken); // Lưu token vào localStorage
+                console.log('Token saved to localStorage:', data.jwtToken);
 
+                // Kiểm tra vai trò và điều hướng nếu người dùng có vai trò ADMIN
+                if (data.roles.includes('ROLE_ADMIN')) {
+                    window.location.href = 'adminAdd.html'; // Chuyển hướng tới trang quản lý user
+                } else {
+                    console.log('User does not have the required role.');
+                    // Hiển thị thông báo lỗi hoặc thực hiện các hành động khác nếu cần
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
     </script>
 
-    <!-- Bootstrap JS -->
+   
+     <!-- JWT Decode Library -->
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+     <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

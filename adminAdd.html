@@ -75,12 +75,12 @@
                             <input type="text" class="form-control" id="name" name="name">
                         </div>
                         <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" class="form-control" id="email" name="email">
-                        </div>
-                        <div class="form-group">
                             <label for="password">Password</label>
                             <input type="password" class="form-control" id="password" name="password">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email">
                         </div>
                         <div class="form-group">
                             <label for="dob">Date of Birth</label>
@@ -96,6 +96,22 @@
                         <div class="form-group">
                             <label for="userType">User Type</label>
                             <input type="text" class="form-control" id="userType" name="userType">
+                        </div>
+                        <div class="form-group">
+                            <label for="salary">Salary</label>
+                            <input type="number" step="0.01" class="form-control" id="salary" name="salary">
+                        </div>
+                        <div class="form-group">
+                            <label for="salaryDate">Salary Date</label>
+                            <input type="date" class="form-control" id="salaryDate" name="salaryDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" class="form-control" id="address" name="address">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="text" class="form-control" id="phone" name="phone">
                         </div>
                         <div class="form-group">
                             <label for="level">Level</label>
@@ -120,24 +136,17 @@
                                 <!-- Options will be dynamically populated via JavaScript -->
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="projects">Projects</label>
-                            <select class="form-control" id="projects" multiple name="projects">
-                                <!-- Options will be dynamically populated via JavaScript -->
-                            </select>
-                        </div>
 
-                        <!-- Add more form fields for other user properties -->
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-primary" id="saveUserBtn">Save User</button>
                         </div>
                     </form>
                 </div>
-
             </div>
         </div>
     </div>
+
 
     <!-- Footer -->
     <footer class="bg-light text-center py-3 mt-5">
