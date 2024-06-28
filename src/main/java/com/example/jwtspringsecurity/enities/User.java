@@ -3,6 +3,7 @@ package com.example.jwtspringsecurity.enities;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -19,6 +20,10 @@ public class User {
     private LocalDate dob;
     private boolean status;
     private String userType;
+    private BigDecimal salary;
+    private LocalDate salaryDate;
+    private String address;
+    private String phone;
     private String level;
     private boolean sex;
     @OneToMany(mappedBy = "user")

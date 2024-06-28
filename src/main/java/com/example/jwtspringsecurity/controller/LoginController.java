@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/login")
 
@@ -47,7 +50,12 @@ public class LoginController {
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-
+        // Lấy danh sách vai trò của người dùng
+        List<String> rolesList = userDetails.getAuthorities().stream()
+                .map(authority -> authority.getAuthority())
+                .collect(Collectors.toList());
+        String roles = String.join(",", rolesList);
+//        System.out.println("User Role: " + roles);
         // In ra console các quyền của người dùng sau khi đăng nhập thành công
         userDetails.getAuthorities().forEach(authority -> {
             System.out.println("User Role: " + authority.getAuthority());
@@ -55,7 +63,7 @@ public class LoginController {
 
         String jwt = jwtUtil.generateToken(userDetails.getUsername());
         // logic có thể được thêm vào đây
-        return ResponseEntity.ok(new LoginReponse(jwt));
+        return ResponseEntity.ok(new LoginReponse(jwt,roles));
     }
 
 }

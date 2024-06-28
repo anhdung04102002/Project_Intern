@@ -47,16 +47,16 @@ public class AdminServiceImpl implements AdminService {
         }
 
         // Set Projects
-        List<Long> projectIds = user.getProjects().stream()
-                .map(Project::getId)
-                .collect(Collectors.toList());
-        if (!projectIds.isEmpty()) {
-            List<Project> projects = projectIds.stream()
-                    .map(projectId -> projectRepo.findById(projectId)
-                            .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId)))
-                    .collect(Collectors.toList());
-            user.setProjects(projects);
-        }
+//        List<Long> projectIds = user.getProjects().stream()
+//                .map(Project::getId)
+//                .collect(Collectors.toList());
+//        if (!projectIds.isEmpty()) {
+//            List<Project> projects = projectIds.stream()
+//                    .map(projectId -> projectRepo.findById(projectId)
+//                            .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId)))
+//                    .collect(Collectors.toList());
+//            user.setProjects(projects);
+//        }
 
         // Save user
         User savedUser = userRepo.save(user);
