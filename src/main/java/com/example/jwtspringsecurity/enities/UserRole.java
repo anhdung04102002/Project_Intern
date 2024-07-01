@@ -1,5 +1,6 @@
 package com.example.jwtspringsecurity.enities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -12,10 +13,12 @@ public class UserRole {
     private Long id;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "role_id")
     private Role role;
 

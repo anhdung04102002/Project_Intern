@@ -1,5 +1,6 @@
 package com.example.jwtspringsecurity.enities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -14,5 +15,6 @@ public class Position {
     private Long id;
     private String name;
     @OneToMany(mappedBy = "position", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonBackReference
     private List<User> users;
 }

@@ -1,5 +1,6 @@
 package com.example.jwtspringsecurity.enities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -12,6 +13,7 @@ public class Task {
     private Long id;
     private String name;
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "project_id")
     private Project project;
 

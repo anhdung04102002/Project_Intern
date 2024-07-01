@@ -54,7 +54,7 @@ public class LoginController {
         List<String> rolesList = userDetails.getAuthorities().stream()
                 .map(authority -> authority.getAuthority())
                 .collect(Collectors.toList());
-        String roles = String.join(",", rolesList);
+        String roles = String.join(",", rolesList); // nối list thành chuỗi với dấu phẩy, nếu chỉ có 1 phâm tử thì không có dấu phẩy
 //        System.out.println("User Role: " + roles);
         // In ra console các quyền của người dùng sau khi đăng nhập thành công
         userDetails.getAuthorities().forEach(authority -> {

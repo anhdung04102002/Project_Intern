@@ -1,5 +1,6 @@
 package com.example.jwtspringsecurity.enities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -28,13 +29,16 @@ public class User {
     private boolean sex;
     @OneToMany(mappedBy = "user")
     private List<UserRole> userRoles;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+//    @JsonBackReference
     @JoinColumn(name = "branch_id")
     private Branch branch;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+//    @JsonBackReference
     @JoinColumn(name = "position_id")
     private Position position;
     @ManyToMany
+    @JsonBackReference
     @JoinTable(
             name = "user_project",
             joinColumns = @JoinColumn(name = "user_id"),
