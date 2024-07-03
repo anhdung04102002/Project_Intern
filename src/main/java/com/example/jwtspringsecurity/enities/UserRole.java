@@ -13,12 +13,12 @@ public class UserRole {
     private Long id;
 
     @ManyToOne
-    @JsonBackReference
+    @JsonBackReference("user-role") // phải có name k bị lỗi 415
     @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
-    @JsonBackReference
+    @JsonBackReference("role-user")
     @JoinColumn(name = "role_id")
     private Role role;
 

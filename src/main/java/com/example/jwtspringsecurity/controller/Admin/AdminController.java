@@ -1,9 +1,12 @@
 package com.example.jwtspringsecurity.controller.Admin;
 
 import com.example.jwtspringsecurity.dto.ApiResponse;
+import com.example.jwtspringsecurity.dto.BranchNotFoundException;
+import com.example.jwtspringsecurity.dto.UserNotFoundException;
 import com.example.jwtspringsecurity.enities.User;
 import com.example.jwtspringsecurity.services.adminService.AdminService;
 import com.example.jwtspringsecurity.services.adminService.AdminUserService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -11,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -23,8 +27,13 @@ public class AdminController {
 
     @PostMapping("/user_add")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<User> addUser(@RequestBody User user)
+    public ResponseEntity<?> addUser(@RequestBody User user)
     {
+        if (adminService.existsByEmail(user.getEmail())) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Email already exists");
+        }
         User newUser = adminService.addUser(user);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
@@ -47,6 +56,85 @@ public class AdminController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/user_getById/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        User user = adminUserService.getById(id);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    // Controller layer
+    @PutMapping("/user_update")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateUser(@RequestBody User updatedUser) {
+        try {
+            User savedUser = adminUserService.updateUser(updatedUser);
+            return ResponseEntity.ok(savedUser);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", "User not found: " + e.getMessage()));
+        } catch (BranchNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", "Branch not found: " + e.getMessage()));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Internal server error"));
+        }
+    }
+    @DeleteMapping("/user_delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteUser(@PathVariable long id) {
+        try {
+            adminUserService.deleteUser(id);
+            return ResponseEntity.ok("User deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting user");
+        }
+    }
 
-
+    @GetMapping("/user_filterStatus")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<List<User>>> filterUserByStatus(
+            @RequestParam(required = false) Boolean status,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        try {
+            Page<User> userPage;
+            if (status == null) {
+                userPage = adminUserService.getAllUserWithPageAndStatus(true, page, size); // Lấy tất cả nếu status không được chỉ định
+            } else {
+                userPage = adminUserService.getAllUserWithPageAndStatus(status, page, size);
+            }
+            List<User> users = userPage.getContent();
+            return ResponseEntity.ok(new ApiResponse<>(userPage.getTotalPages(), users));
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/user_search")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> searchUser (   // để ? để trả về bất kỳ kiểu dữ liệu nào, đây là dạng generic
+            @RequestParam(required = false) String name,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        try {
+        Page<User> userPage;
+        if(name != null && !name.isEmpty()) {
+            userPage = adminUserService.search(name, page, size);
+        } else {
+            userPage = adminUserService.getAllUserwithPage(page, size);
+        }
+        List<User> users = userPage.getContent();
+            if (users.isEmpty()) {
+                return ResponseEntity.ok("No users found"); // Return string message
+            } else
+        return ResponseEntity.ok(new ApiResponse<>(userPage.getTotalPages(), users));
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

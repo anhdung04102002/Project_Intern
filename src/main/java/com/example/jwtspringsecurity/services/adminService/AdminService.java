@@ -4,4 +4,5 @@ import com.example.jwtspringsecurity.enities.User;
 
 public interface AdminService {
     User addUser(User User);
+    Boolean existsByEmail(String email);
 }

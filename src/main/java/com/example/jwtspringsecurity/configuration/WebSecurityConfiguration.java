@@ -66,7 +66,7 @@ public class WebSecurityConfiguration {
     }
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
+        return configuration.getAuthenticationManager(); // cung cấp các thành phần liên quan đến xác thực và phân quyền
     }
 
 

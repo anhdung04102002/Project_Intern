@@ -67,6 +67,12 @@ public class AdminServiceImpl implements AdminService {
         return savedUser;
     }
 
+    @Override
+    public Boolean existsByEmail(String email) {
+        return userRepo.existsByEmail(email);
+    }
+
+
     private void assignRoleBasedOnEmail(User user) {
         String email = user.getEmail();
         Role assignedRole;

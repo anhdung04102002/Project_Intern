@@ -6,10 +6,13 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,9 +20,9 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
-    public static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-
-    public static final String SECRET = Encoders.BASE64.encode(SECRET_KEY.getEncoded());
+    @Value("${jwt.secretKey}")
+    private  String SECRET_KEY ;
+//    private final String SECRET = Encoders.BASE64.encode(SECRET_KEY.getEncoded());
 
 //    public static final String SECRET = "53256666666666666666666666666666666666666666644444444444477777777777777777777777777777777777777777777777777777777777777777799999999999999999999999999999999";
 
@@ -65,7 +68,7 @@ public class JwtUtil {
     }
 
     private Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

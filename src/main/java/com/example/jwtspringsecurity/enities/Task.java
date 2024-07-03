@@ -13,7 +13,7 @@ public class Task {
     private Long id;
     private String name;
     @ManyToOne
-    @JsonBackReference
+//    @JsonBackReference
     @JoinColumn(name = "project_id")
     private Project project;
 

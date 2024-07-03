@@ -1,6 +1,7 @@
 package com.example.jwtspringsecurity.enities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -20,6 +21,6 @@ public class Branch {
     private WorkingTime workingTime;
 
     @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonBackReference
+    @JsonManagedReference("branch-user") // phải đặt tên
     private List<User> users;
 }

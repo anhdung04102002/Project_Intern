@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,7 +39,7 @@ public class LoginController {
     @PostMapping
     public ResponseEntity<LoginReponse> login(@RequestBody LoginRequest loginRequest) {
         try {
-            authenticationManager.authenticate(   //  xác thực thông tin so  với  chi tiết người dùng
+            authenticationManager.authenticate(   //  xác thực thông tin so  với  chi tiết người dùng (tiêm cái loadUserByUsername vào đây)
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
             );
         } catch (AuthenticationException e) {
@@ -48,7 +49,7 @@ public class LoginController {
         try {
             userDetails = UserService.loadUserByUsername(loginRequest.getEmail());
         } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new LoginReponse(null, e.getMessage()));
         }
         // Lấy danh sách vai trò của người dùng
         List<String> rolesList = userDetails.getAuthorities().stream()
