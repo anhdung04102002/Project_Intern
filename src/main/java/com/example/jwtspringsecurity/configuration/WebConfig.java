@@ -7,7 +7,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-// file này tạo ra để cấu hình CORS cho ứng dụng Spring Boot(đáp ứng vơi frontend Angular)
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")  // Áp dụng cho tất cả các endpoint

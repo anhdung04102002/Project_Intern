@@ -3,16 +3,12 @@ package com.example.jwtspringsecurity.utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,35 +17,43 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
     @Value("${jwt.secretKey}")
-    private  String SECRET_KEY ;
-//    private final String SECRET = Encoders.BASE64.encode(SECRET_KEY.getEncoded());
+    private String SECRET_KEY;
+    @Value("${jwt.refreshSecretKey}")
+    private String SECRET_KEY_REFRESH_TOKEN;
 
-//    public static final String SECRET = "53256666666666666666666666666666666666666666644444444444477777777777777777777777777777777777777777777777777777777777777777799999999999999999999999999999999";
-
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    private Key getSigningKey(String key) {
+        return Keys.hmacShaKeyFor(key.getBytes()); //  đổi về dạng key
     }
 
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public String extractUsername(String token, boolean isRefreshToken) {
+        return extractClaim(token, Claims::getSubject, isRefreshToken);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
+    public Date extractExpiration(String token, boolean isRefreshToken) {
+        return extractClaim(token, Claims::getExpiration, isRefreshToken);
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver, boolean isRefreshToken) {
+        final Claims claims = extractAllClaims(token, isRefreshToken);
         return claimsResolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token).getBody();
+    private Claims extractAllClaims(String token, boolean isRefreshToken) {
+        String key = isRefreshToken ? SECRET_KEY_REFRESH_TOKEN : SECRET_KEY; // toán  tử ba ngôi
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey(key))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
-    private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    private Boolean isTokenExpired(String token, boolean isRefreshToken) {
+        return extractExpiration(token, isRefreshToken).before(new Date());
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public Boolean validateToken(String token, UserDetails userDetails, boolean isRefreshToken) {
+        final String username = extractUsername(token, isRefreshToken);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token, isRefreshToken));
     }
 
     public String generateToken(String username) {
@@ -57,19 +61,24 @@ public class JwtUtil {
         return createToken(claims, username);
     }
 
-    private String createToken(Map<String, Object> claims, String userName) {
-        return Jwts
-                .builder()
+    public String generateRefreshToken(String username) {
+        Map<String, Object> claims = new HashMap<>();
+        return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(userName)
+                .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
-                .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60  * 60 * 24))
+                .signWith(SignatureAlgorithm.HS256, getSigningKey(SECRET_KEY_REFRESH_TOKEN))
+                .compact();
     }
 
-    private Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-        return Keys.hmacShaKeyFor(keyBytes);
+    private String createToken(Map<String, Object> claims, String username) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(username)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 ))
+                .signWith(SignatureAlgorithm.HS256, getSigningKey(SECRET_KEY))
+                .compact();
     }
-
 }

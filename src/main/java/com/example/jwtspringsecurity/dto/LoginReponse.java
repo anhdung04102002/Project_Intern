@@ -6,15 +6,27 @@ import java.util.List;
 //}
 public class LoginReponse {
     private String jwtToken;
+    private String refreshToken;
     private String roles;
 //    public LoginReponse(String jwtToken) {
 //        this.jwtToken = jwtToken;
 //    }
-public LoginReponse(String jwtToken, String roles) {
+public LoginReponse(String jwtToken, String refreshToken,String roles) {
     this.jwtToken = jwtToken;
+    this.refreshToken = refreshToken;
     this.roles = roles;
 }
-// phải thêm getter để phục vụ  việc json truy caập vào trường này
+    public LoginReponse(String jwtToken,String roles) {
+        this.jwtToken = jwtToken;
+        this.roles = roles;
+    }
+
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    // phải thêm getter để phục vụ  việc json truy caập vào trường này
     public String getJwtToken() {
         return jwtToken;
     }

@@ -21,24 +21,41 @@ public class JwtRequestFilter extends OncePerRequestFilter { //bộ lọc thực
     private UserServiceImpl UserService;
     @Autowired
     private JwtUtil jwtUtil;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-            String auHeader = request.getHeader("Authorization");
-            String token = null;
-            String username = null;
-            if(auHeader != null && auHeader.startsWith("Bearer ")){
-                token = auHeader.substring(7);
-                username = jwtUtil.extractUsername(token);
-            }
-            if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){ // kiểm tra ngữ cảnh không có người dùng nào được xác thực
-                var userDetails = UserService.loadUserByUsername(username);
-                if(jwtUtil.validateToken(token, userDetails)){
-                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        String authorizationHeader = request.getHeader("Authorization");
+        String token = null;
+        String username = null;
 
-                }
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            token = authorizationHeader.substring(7);
+            try {
+                // Giải mã token sử dụng SECRET_KEY (token chính)
+                username = jwtUtil.extractUsername(token, false);
+            } catch (Exception e) {
+                // Ignore nếu không giải mã được
             }
-            filterChain.doFilter(request, response);
+        }
+
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            var userDetails = UserService.loadUserByUsername(username);
+            boolean isTokenValid = false;
+
+            try {
+                // Kiểm tra token với SECRET_KEY
+                isTokenValid = jwtUtil.validateToken(token, userDetails, false);
+            } catch (Exception ignored) {
+                // Ignore nếu không validate được
+            }
+
+            if (isTokenValid) {
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            }
+        }
+
+        filterChain.doFilter(request, response);
     }
 }

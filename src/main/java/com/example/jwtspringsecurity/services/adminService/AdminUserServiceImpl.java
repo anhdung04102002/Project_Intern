@@ -2,12 +2,9 @@ package com.example.jwtspringsecurity.services.adminService;
 
 import com.example.jwtspringsecurity.dto.BranchNotFoundException;
 import com.example.jwtspringsecurity.dto.UserNotFoundException;
-import com.example.jwtspringsecurity.enities.Branch;
-import com.example.jwtspringsecurity.enities.Position;
-import com.example.jwtspringsecurity.enities.User;
-import com.example.jwtspringsecurity.repositories.BranchRepo;
-import com.example.jwtspringsecurity.repositories.PositionRepo;
-import com.example.jwtspringsecurity.repositories.UserRepo;
+import com.example.jwtspringsecurity.enities.*;
+import com.example.jwtspringsecurity.repositories.*;
+import com.example.jwtspringsecurity.services.AuthServiceImpl;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,7 +25,12 @@ public class AdminUserServiceImpl implements AdminUserService {
     BranchRepo branchRepo;
     @Autowired
     private UserRepo userRepo;
-
+    @Autowired
+    private AuthServiceImpl authService;
+    @Autowired
+    private RoleRepo roleRepo;
+    @Autowired
+    private UserRoleRepo userRoleRepo;
     @Override
     public List<User> getAllUser() {
         return userRepo.findAll();
@@ -59,12 +62,16 @@ public class AdminUserServiceImpl implements AdminUserService {
         return userRepo.findById(id).orElse(null);
 
     }
-
+    @Transactional
     @Override
     public User updateUser(User updatedUser) {
         // Ensure user exists before updating
         Long userId = updatedUser.getId();
         User existingUser = userRepo.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+        // Xóa tất cả UserRole cũ
+        List<UserRole> userRoles = userRoleRepo.findByUser(existingUser);
+        userRoleRepo.deleteAll(userRoles);
+
         if (existingUser != null) {
             existingUser.setName(updatedUser.getName());
             existingUser.setEmail(updatedUser.getEmail());
@@ -92,6 +99,9 @@ public class AdminUserServiceImpl implements AdminUserService {
                 Branch existingBranch = branchRepo.findById(updatedBranch.getId()).orElseThrow(() -> new BranchNotFoundException("Branch not found with id: " + updatedBranch.getId()));
                 existingUser.setBranch(existingBranch);
             }
+
+
+            assignRole(existingUser, updatedUser.getEmail());
             return userRepo.save(existingUser);
         } else {
             // Handle case where user does not exist
@@ -119,6 +129,42 @@ public class AdminUserServiceImpl implements AdminUserService {
         return userRepo.search(keyword, PageRequest.of(page - 1, size));
     }
 
+    public void assignRole(User user, String email) {
+        // xóa quyền  hiện tại để tránh tạo  nhiều role cho 1 user
 
+        Role userRole = roleRepo.findByName("ROLE_USER").orElseGet(() -> {
+            Role newUserRole = new Role();
+            newUserRole.setName("ROLE_USER");
+            roleRepo.save(newUserRole);
+            return newUserRole;
+        });
+        Role adminRole = roleRepo.findByName("ROLE_ADMIN").orElseGet(() -> {
+            Role newAdminRole = new Role();
+            newAdminRole.setName("ROLE_ADMIN");
+            roleRepo.save(newAdminRole);
+            return newAdminRole;
+        });
+        Role managerRole = roleRepo.findByName("ROLE_MANAGER").orElseGet(() -> {
+            Role newManagerRole = new Role();
+            newManagerRole.setName("ROLE_MANAGER");
+            roleRepo.save(newManagerRole);
+            return newManagerRole;
+        });
+
+        Role assignedRole;
+
+        if (email.endsWith("@nccadmin.asia")) {  // vai trò admin
+            assignedRole = adminRole;
+        } else if (email.endsWith("@nccpm.asia")) { // vai  trò quản lí
+            assignedRole = managerRole;
+        } else {
+            assignedRole = userRole;
+        }
+
+        UserRole userRoleEntity = new UserRole();
+        userRoleEntity.setUser(user);
+        userRoleEntity.setRole(assignedRole);
+        userRoleRepo.save(userRoleEntity);
+    }
 }
 

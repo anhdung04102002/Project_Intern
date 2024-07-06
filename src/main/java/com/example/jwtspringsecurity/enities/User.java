@@ -57,4 +57,8 @@ public class User {
     public boolean isStatus() {
         return status;
     }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<TimeSheet> timesheets;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<TimesheetWeek> timesheetWeeks;
 }

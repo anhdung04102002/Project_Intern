@@ -3,14 +3,14 @@ package com.example.jwtspringsecurity.services.adminService;
 import com.example.jwtspringsecurity.enities.*;
 import com.example.jwtspringsecurity.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 public class AdminServiceImpl implements AdminService {
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -60,7 +60,8 @@ public class AdminServiceImpl implements AdminService {
 
         // Save user
         User savedUser = userRepo.save(user);
-
+        // Publish UserCreatedEvent
+//        eventPublisher.publishEvent(new UserCreatedEvent(this, savedUser));
         // Assign role based on email
         assignRoleBasedOnEmail(savedUser);
 
