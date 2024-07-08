@@ -1,6 +1,7 @@
 package com.example.jwtspringsecurity.filters;
 
 import com.example.jwtspringsecurity.services.jwt.UserServiceImpl;
+import com.example.jwtspringsecurity.utils.JwtTokenUtil;
 import com.example.jwtspringsecurity.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,7 +22,8 @@ public class JwtRequestFilter extends OncePerRequestFilter { //bộ lọc thực
     private UserServiceImpl UserService;
     @Autowired
     private JwtUtil jwtUtil;
-
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader("Authorization");
@@ -37,6 +39,13 @@ public class JwtRequestFilter extends OncePerRequestFilter { //bộ lọc thực
                 // Ignore nếu không giải mã được
             }
         }
+
+        if (token != null && jwtTokenUtil.isTokenInvalidated(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Token is invalidated");
+            return;
+        }
+
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             var userDetails = UserService.loadUserByUsername(username);

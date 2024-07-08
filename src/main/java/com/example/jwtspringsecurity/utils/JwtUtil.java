@@ -79,15 +79,6 @@ public class JwtUtil {
                 .signWith(SignatureAlgorithm.HS256, getSigningKey(SECRET_KEY))
                 .compact();
     }
-//    private List<String> invalidatedTokens = new ArrayList<>();
-//    // Thêm phương thức để vô hiệu hóa token
-//    public void invalidateToken(String token) {
-//        invalidatedTokens.add(token);
-//    }
-//
-//    // Phương thức kiểm tra xem token có bị vô hiệu hóa hay không
-//    public boolean isTokenInvalidated(String token) {
-//        return invalidatedTokens.contains(token);
-//    }
+
 
 }
