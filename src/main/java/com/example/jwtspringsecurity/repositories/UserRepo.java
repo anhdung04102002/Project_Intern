@@ -15,7 +15,6 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE LOWER(u.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<User> search(String keyword, Pageable pageable);
     boolean existsByEmail(String email);
-
     Optional<User> findByEmail(String email);
     List<User> findByStatus(boolean status);
     Page<User> findByStatus(boolean status, Pageable pageable);

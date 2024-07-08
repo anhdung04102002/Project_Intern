@@ -9,9 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @Component
@@ -81,4 +79,15 @@ public class JwtUtil {
                 .signWith(SignatureAlgorithm.HS256, getSigningKey(SECRET_KEY))
                 .compact();
     }
+//    private List<String> invalidatedTokens = new ArrayList<>();
+//    // Thêm phương thức để vô hiệu hóa token
+//    public void invalidateToken(String token) {
+//        invalidatedTokens.add(token);
+//    }
+//
+//    // Phương thức kiểm tra xem token có bị vô hiệu hóa hay không
+//    public boolean isTokenInvalidated(String token) {
+//        return invalidatedTokens.contains(token);
+//    }
+
 }
