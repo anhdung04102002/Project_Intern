@@ -15,10 +15,10 @@ public class Project {
     private Long id;
     private String name;
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    @JsonBackReference
+    @JsonBackReference
     private List<Task> tasks;
 
-    @ManyToMany(mappedBy = "projects",cascade = CascadeType.ALL)
-//    @JsonBackReference
+    @ManyToMany(mappedBy = "projects",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JsonBackReference
     private List<User> users;
 }

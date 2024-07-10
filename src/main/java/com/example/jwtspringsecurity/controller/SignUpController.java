@@ -20,7 +20,7 @@ public class SignUpController {
     public SignUpController(AuthService authService) {
         this.authService = authService;
     }
-    @CrossOrigin(origins = "http://localhost:8080")
+//    @CrossOrigin(origins = "http://localhost:8080")
     @PostMapping
 
     public ResponseEntity<String> signUp(@RequestBody SignUpRequest signUpRequest) {

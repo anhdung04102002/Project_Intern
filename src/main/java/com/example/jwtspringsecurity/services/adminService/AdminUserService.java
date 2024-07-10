@@ -1,5 +1,6 @@
 package com.example.jwtspringsecurity.services.adminService;
 
+import com.example.jwtspringsecurity.enities.LeaveType;
 import com.example.jwtspringsecurity.enities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,5 +20,6 @@ public interface AdminUserService {
     List<User> findByStatus(boolean status);
     Page<User> getAllUserWithPageAndStatus(Boolean status, int page, int size);
     Page<User> search(String keyword, int page, int size);
+
 
 }

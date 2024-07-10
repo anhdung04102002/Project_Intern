@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "leaveType")
+@Table(name = "leave_type")
 @Data
 public class LeaveType {
     @Id

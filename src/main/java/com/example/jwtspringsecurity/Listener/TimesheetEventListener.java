@@ -93,4 +93,9 @@ public class TimesheetEventListener {
         // Save the TimesheetWeek object to the repository
         timesheetWeekRepository.save(timesheetWeek);
     }
+    @EventListener
+    public void delete(TimesheetTemporarySaveEvent timesheetTemporarySaveEvent) {
+        TimeSheet timeSheet = timesheetTemporarySaveEvent.getTimeSheet();
+        timesheetRepository.delete(timeSheet);
+    }
 }
