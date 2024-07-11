@@ -1,5 +1,7 @@
 package com.example.jwtspringsecurity.services.adminService;
 
+import com.example.jwtspringsecurity.Mapper.UserMapper;
+import com.example.jwtspringsecurity.dto.UserDTO;
 import com.example.jwtspringsecurity.enities.*;
 import com.example.jwtspringsecurity.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +27,16 @@ public class AdminServiceImpl implements AdminService {
     private RoleRepo roleRepo;
     @Autowired
     private UserRoleRepo userRoleRepo;
-
+    @Autowired
+    private UserMapper userMapper; // Inject UserMapper
     @Override
-    public User addUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public User addUser(UserDTO userDTO) {
+        User user = userMapper.userDTOToUsers(userDTO); // Map UserDTO to User
+
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
         // Set Branch
-        Long branchId = user.getBranch() != null ? user.getBranch().getId() : null;
+        Long branchId = userDTO.getBranchId();
         if (branchId != null) {
             Branch branch = branchRepo.findById(branchId)
                     .orElseThrow(() -> new IllegalArgumentException("Branch not found with id: " + branchId));
@@ -39,29 +44,16 @@ public class AdminServiceImpl implements AdminService {
         }
 
         // Set Position
-        Long positionId = user.getPosition() != null ? user.getPosition().getId() : null;
+        Long positionId = userDTO.getPositionId();
         if (positionId != null) {
             Position position = positionRepo.findById(positionId)
                     .orElseThrow(() -> new IllegalArgumentException("Position not found with id: " + positionId));
             user.setPosition(position);
         }
 
-        // Set Projects
-//        List<Long> projectIds = user.getProjects().stream()
-//                .map(Project::getId)
-//                .collect(Collectors.toList());
-//        if (!projectIds.isEmpty()) {
-//            List<Project> projects = projectIds.stream()
-//                    .map(projectId -> projectRepo.findById(projectId)
-//                            .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId)))
-//                    .collect(Collectors.toList());
-//            user.setProjects(projects);
-//        }
-
         // Save user
         User savedUser = userRepo.save(user);
-        // Publish UserCreatedEvent
-//        eventPublisher.publishEvent(new UserCreatedEvent(this, savedUser));
+
         // Assign role based on email
         assignRoleBasedOnEmail(savedUser);
 
@@ -76,6 +68,9 @@ public class AdminServiceImpl implements AdminService {
 
     private void assignRoleBasedOnEmail(User user) {
         String email = user.getEmail();
+        if (email == null) {
+            throw new IllegalArgumentException("Email cannot be null");
+        }
         Role assignedRole;
 
         Role userRole = roleRepo.findByName("ROLE_USER").orElseGet(() -> {

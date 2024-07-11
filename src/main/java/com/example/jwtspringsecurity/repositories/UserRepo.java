@@ -1,5 +1,6 @@
 package com.example.jwtspringsecurity.repositories;
 
+import com.example.jwtspringsecurity.enities.Branch;
 import com.example.jwtspringsecurity.enities.Project;
 import com.example.jwtspringsecurity.enities.User;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ public interface UserRepo extends JpaRepository<User, Long> {
     List<Project> findAllProjectsByUserId(@Param("userId") Long userId);
     List<User> findByStatus(boolean status);
     Page<User> findByStatus(boolean status, Pageable pageable);
-    // tìm kiếm theo tên hoặc email
+   // filter user theo branch
+    Page<User> findByBranch(Branch branch, Pageable pageable);
 
 }

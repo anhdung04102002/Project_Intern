@@ -2,6 +2,7 @@ package com.example.jwtspringsecurity.controller.Admin;
 
 import com.example.jwtspringsecurity.dto.ApiResponse;
 import com.example.jwtspringsecurity.dto.BranchNotFoundException;
+import com.example.jwtspringsecurity.dto.UserDTO;
 import com.example.jwtspringsecurity.dto.UserNotFoundException;
 import com.example.jwtspringsecurity.enities.User;
 import com.example.jwtspringsecurity.services.adminService.AdminService;
@@ -27,14 +28,14 @@ public class AdminController {
 
     @PostMapping("/user_add")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> addUser(@RequestBody User user)
+    public ResponseEntity<?> addUser(@RequestBody UserDTO userDTO)
     {
-        if (adminService.existsByEmail(user.getEmail())) {
+        if (adminService.existsByEmail(userDTO.getEmail())) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Email already exists");
         }
-        User newUser = adminService.addUser(user);
+        User newUser = adminService.addUser(userDTO);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
@@ -45,9 +46,13 @@ public class AdminController {
         List<User> users = adminUserService.getAllUser();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
-    @GetMapping("/user_pagination/{page}/{size}")
+
+
+    @GetMapping("/user_pagination")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<List<User>>> getAllUserWithPage(@PathVariable int page, @PathVariable int size) {
+    public ResponseEntity<ApiResponse<List<User>>> getAllUserWithPage(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
         try {
             Page<User> userPage = adminUserService.getAllUserwithPage(page, size);
             List<User> user = userPage.getContent();
@@ -56,6 +61,9 @@ public class AdminController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+
     @GetMapping("/user_getById/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
@@ -114,6 +122,22 @@ public class AdminController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/user_filterBranch")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<List<User>>> filterUserByBranch(
+            @RequestParam(required = false) Long branchId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        try {
+            Page<User> userPage = adminUserService.getUserWithPageAndBranch(branchId, page, size);
+            List<User> users = userPage.getContent();
+            return ResponseEntity.ok(new ApiResponse<>(userPage.getTotalPages(), users));
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/user_search")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> searchUser (   // để ? để trả về bất kỳ kiểu dữ liệu nào, đây là dạng generic

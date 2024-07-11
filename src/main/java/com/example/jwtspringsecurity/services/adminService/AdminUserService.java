@@ -20,6 +20,6 @@ public interface AdminUserService {
     List<User> findByStatus(boolean status);
     Page<User> getAllUserWithPageAndStatus(Boolean status, int page, int size);
     Page<User> search(String keyword, int page, int size);
-
+    Page<User> getUserWithPageAndBranch(Long branchId, int page, int size);
 
 }

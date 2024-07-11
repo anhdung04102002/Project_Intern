@@ -129,6 +129,16 @@ public class AdminUserServiceImpl implements AdminUserService {
         return userRepo.search(keyword, PageRequest.of(page - 1, size));
     }
 
+    @Override
+    public Page<User> getUserWithPageAndBranch(Long branchId, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        if (branchId == null) {
+            return userRepo.findAll(pageable);
+        } else {
+            Branch branch = branchRepo.findById(branchId).orElseThrow(() -> new BranchNotFoundException("Branch not found with id: " + branchId));
+            return userRepo.findByBranch(branch, pageable);
+        }
+    }
 
 
     public void assignRole(User user, String email) {
