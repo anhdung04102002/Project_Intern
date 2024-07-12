@@ -2,6 +2,7 @@ package com.example.jwtspringsecurity.services.managerService;
 
 import com.example.jwtspringsecurity.enities.RequestLeave;
 import com.example.jwtspringsecurity.enities.RequestType;
+import com.example.jwtspringsecurity.enities.SubRequestType;
 import com.example.jwtspringsecurity.repositories.RequestLeaveRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,4 +65,23 @@ public class RequestServiceImpl implements RequestService{
         }
     }
 
+    @Override
+    public Page<RequestLeave> searchRequestByYearMonthAndTypesAndStatus(int month, RequestType requestType, SubRequestType subRequestType, String status, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // Check if requestType is ALL
+        if (requestType.equals(RequestType.ALL) && subRequestType.equals(SubRequestType.ALL)) {
+            // If both requestType and subRequestType are ALL, ignore these filters
+            return requestLeaveRepository.findByYearMonthAndStatus(month, status, pageable);
+        } else if (requestType.equals(RequestType.ALL)) {
+            // If requestType is ALL, ignore requestType filter but consider subRequestType
+            return requestLeaveRepository.findByYearMonthAndSubRequestTypeAndStatus(month, subRequestType, status, pageable);
+        } else if (subRequestType.equals(SubRequestType.ALL)) {
+            // If subRequestType is ALL, ignore subRequestType filter but consider requestType
+            return requestLeaveRepository.findByYearMonthAndRequestTypeAndStatus(month, requestType, status, pageable);
+        } else {
+            // If neither is ALL, use both filters
+            return requestLeaveRepository.findByCurrentYearMonthAndTypesAndStatus(month, requestType, subRequestType, status, pageable);
+        }
+    }
 }

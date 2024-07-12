@@ -2,6 +2,7 @@ package com.example.jwtspringsecurity.controller.Manager;
 
 import com.example.jwtspringsecurity.enities.RequestLeave;
 import com.example.jwtspringsecurity.enities.RequestType;
+import com.example.jwtspringsecurity.enities.SubRequestType;
 import com.example.jwtspringsecurity.services.managerService.RequestService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/manager")
@@ -63,5 +66,20 @@ public class ManageRequestController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         return requestService.searchRequestByType(requestType, page, size);
+    }
+    @GetMapping("/searchAll")
+    @PreAuthorize("hasRole('MANAGER')")
+    public Page<RequestLeave> searchAllRequest(
+            @RequestParam(required = false) Integer month,
+            @RequestParam(defaultValue = "ALL") RequestType requestType,
+            @RequestParam(defaultValue = "ALL") SubRequestType subRequestType,
+            @RequestParam(defaultValue = "PENDING") String status,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        if (month == null || month < 1 || month > 12) {
+            month = LocalDate.now().getMonthValue(); // Set to current month if not provided or invalid
+        }
+        return requestService.searchRequestByYearMonthAndTypesAndStatus(month, requestType, subRequestType, status, page, size);
     }
 }
