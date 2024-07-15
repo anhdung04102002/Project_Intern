@@ -1,5 +1,6 @@
 package com.example.jwtspringsecurity.services.adminService;
 
+import com.example.jwtspringsecurity.controller.Admin.PasswordGenerator;
 import com.example.jwtspringsecurity.dto.BranchNotFoundException;
 import com.example.jwtspringsecurity.dto.UserNotFoundException;
 import com.example.jwtspringsecurity.enities.*;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,9 @@ public class AdminUserServiceImpl implements AdminUserService {
     private RoleRepo roleRepo;
     @Autowired
     private UserRoleRepo userRoleRepo;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public List<User> getAllUser() {
         return userRepo.findAll();
@@ -48,7 +54,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public void deleteUser(long id) {
-            this.userRepo.deleteById(id);
+        this.userRepo.deleteById(id);
     }
 
     @Override
@@ -62,6 +68,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         return userRepo.findById(id).orElse(null);
 
     }
+
     @Transactional
     @Override
     public User updateUser(User updatedUser) {
@@ -138,6 +145,37 @@ public class AdminUserServiceImpl implements AdminUserService {
             Branch branch = branchRepo.findById(branchId).orElseThrow(() -> new BranchNotFoundException("Branch not found with id: " + branchId));
             return userRepo.findByBranch(branch, pageable);
         }
+    }
+
+    @Override
+    public Boolean deativeUser(Long userId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("Không có user với id " + userId));
+        user.setStatus(false);
+        userRepo.save(user);
+        return true;
+    }
+
+    @Override
+    public Boolean activeUser(Long userId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("Không có user với id " + userId));
+        user.setStatus(true);
+        userRepo.save(user);
+        return true;
+    }
+
+    @Override
+    public Boolean resetPassword(Long id,String newPassword) {
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Không có user với id " + id));
+        if (user != null) {
+            String encryptedPassword = passwordEncoder.encode(newPassword);
+            user.setPassword(encryptedPassword);
+            userRepo.save(user);
+            return true;
+        }
+        return false;
     }
 
 

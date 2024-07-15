@@ -23,6 +23,11 @@ public class UserServiceImpl implements UserDetailsService {
         // viết logic để kế nối với người dùng trong db
         com.example.jwtspringsecurity.enities.User user = UserRepo.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Email không tồn tại: " + email));
+
+        if (!user.isStatus()) {
+            throw new UsernameNotFoundException("Tài khoản này đã bị vô hiệu hóa.");
+        }
+
 // lấy tên quyền của user với name của entity ROLE tương ứng -> ánh xạ sang ROLE trong spring security thì lúc này code mới  hiểu được đó là role nào và phân quyền phạm vi truy cập cho người dùng
         var authorities = user.getUserRoles().stream()
                 .map(UserRole::getRole)

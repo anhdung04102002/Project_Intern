@@ -21,5 +21,7 @@ public interface AdminUserService {
     Page<User> getAllUserWithPageAndStatus(Boolean status, int page, int size);
     Page<User> search(String keyword, int page, int size);
     Page<User> getUserWithPageAndBranch(Long branchId, int page, int size);
-
+    Boolean deativeUser(Long id);
+    Boolean activeUser(Long id);
+    Boolean resetPassword(Long id,String encryptedPassword);
 }

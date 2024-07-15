@@ -13,10 +13,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -25,11 +28,12 @@ public class AdminController {
     private AdminService adminService;
     @Autowired
     private AdminUserService adminUserService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @PostMapping("/user_add")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> addUser(@RequestBody UserDTO userDTO)
-    {
+    public ResponseEntity<?> addUser(@RequestBody UserDTO userDTO) {
         if (adminService.existsByEmail(userDTO.getEmail())) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -63,7 +67,6 @@ public class AdminController {
     }
 
 
-
     @GetMapping("/user_getById/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
@@ -74,6 +77,7 @@ public class AdminController {
             return ResponseEntity.notFound().build();
         }
     }
+
     // Controller layer
     @PutMapping("/user_update")
     @PreAuthorize("hasRole('ADMIN')")
@@ -91,6 +95,7 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Internal server error"));
         }
     }
+
     @DeleteMapping("/user_delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable long id) {
@@ -122,6 +127,7 @@ public class AdminController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @GetMapping("/user_filterBranch")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<User>>> filterUserByBranch(
@@ -140,25 +146,81 @@ public class AdminController {
 
     @GetMapping("/user_search")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> searchUser (   // để ? để trả về bất kỳ kiểu dữ liệu nào, đây là dạng generic
-            @RequestParam(required = false) String name,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
+    public ResponseEntity<?> searchUser(   // để ? để trả về bất kỳ kiểu dữ liệu nào, đây là dạng generic
+                                           @RequestParam(required = false) String name,
+                                           @RequestParam(defaultValue = "1") int page,
+                                           @RequestParam(defaultValue = "10") int size
     ) {
         try {
-        Page<User> userPage;
-        if(name != null && !name.isEmpty()) {
-            userPage = adminUserService.search(name, page, size);
-        } else {
-            userPage = adminUserService.getAllUserwithPage(page, size);
-        }
-        List<User> users = userPage.getContent();
+            Page<User> userPage;
+            if (name != null && !name.isEmpty()) {
+                userPage = adminUserService.search(name, page, size);
+            } else {
+                userPage = adminUserService.getAllUserwithPage(page, size);
+            }
+            List<User> users = userPage.getContent();
             if (users.isEmpty()) {
                 return ResponseEntity.ok("No users found"); // Return string message
             } else
-        return ResponseEntity.ok(new ApiResponse<>(userPage.getTotalPages(), users));
+                return ResponseEntity.ok(new ApiResponse<>(userPage.getTotalPages(), users));
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PutMapping("/user_deactivate/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deactivateUser(@PathVariable Long id) {
+        try {
+            boolean result = adminUserService.deativeUser(id);
+            if (result) {
+                return ResponseEntity.ok().body("User deactivated successfully");
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to deactivate user");
+            }
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Internal server error"));
+        }
+    }
+
+    @PutMapping("/user_active/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> activeUser(@PathVariable Long id) {
+        try {
+            boolean result = adminUserService.activeUser(id);
+            if (result) {
+                return ResponseEntity.ok().body("User active successfully");
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to active user");
+            }
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Internal server error"));
+        }
+    }
+
+    @GetMapping("/generate-password")
+    public ResponseEntity<String> generatePassword(@RequestParam(defaultValue = "5") int length) {
+        String password = PasswordGenerator.generateRandomPassword(length);
+        return ResponseEntity.ok(password);
+    }
+
+        @PutMapping("/reset-password/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updatePassword(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        String newPassword = payload.get("password");
+        if (newPassword == null || newPassword.isEmpty()) {
+            return ResponseEntity.badRequest().body("Password is required");
+        }
+        Boolean result = adminUserService.resetPassword(id, newPassword);
+        if (result) {
+            return ResponseEntity.ok().body("Password updated successfully");
+        } else {
+            return ResponseEntity.badRequest().body("Failed to update password");
+        }
+
     }
 }

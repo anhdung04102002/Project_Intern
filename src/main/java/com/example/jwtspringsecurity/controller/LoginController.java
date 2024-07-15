@@ -39,20 +39,23 @@ public class LoginController {
 
 
     @PostMapping
-    @Transactional
+//    @Transactional
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
             authenticationManager.authenticate(   //  xác thực thông tin so  với  chi tiết người dùng (tiêm cái loadUserByUsername vào đây)
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
             );
         } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Sai tài khoản hoặc mật khẩu"));
         }
         UserDetails userDetails;
         try {
             userDetails = UserService.loadUserByUsername(loginRequest.getEmail());
         } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sai tài khoản hoặc mật khẩu");
+            if (e.getMessage().contains("vô hiệu hóa")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Tài khoản này đã bị vô hiệu hóa."));
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Sai tài khoản hoặc mật khẩu"));
         }
         // Lấy danh sách vai trò của người dùng
         List<String> rolesList = userDetails.getAuthorities().stream()
