@@ -1,5 +1,10 @@
 package com.example.jwtspringsecurity.Listener;
 
+import com.example.jwtspringsecurity.Mapper.AttendanceMapper;
+import com.example.jwtspringsecurity.Mapper.TimeSheetMapper;
+import com.example.jwtspringsecurity.Mapper.TimeSheetWeekMapper;
+import com.example.jwtspringsecurity.dto.TimeSheetDTO;
+import com.example.jwtspringsecurity.dto.TimeSheetWeekDTO;
 import com.example.jwtspringsecurity.enities.TimeSheet;
 import com.example.jwtspringsecurity.enities.TimesheetWeek;
 import com.example.jwtspringsecurity.enities.User;
@@ -25,9 +30,12 @@ public class TimesheetEventListener {
     private UserRepo userRepository;
     @Autowired
     private TimeSheetRepo timesheetRepository;
-
+    @Autowired
+    private TimeSheetMapper timeSheetMapper;
     @Autowired
     private TimesheetWeekRepo timesheetWeekRepository;
+    @Autowired
+    private TimeSheetWeekMapper timeSheetWeekMapper;
     @Transactional
     @EventListener
     public void handleTimesheetTemporarySave(TimesheetTemporarySaveEvent event) {
@@ -37,18 +45,19 @@ public class TimesheetEventListener {
 
         User currentUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + userEmail)); ;
 
-        TimeSheet newTimesheet = event.getTimeSheet();
-        newTimesheet.setStatus("new");
+        TimeSheetDTO timeSheetDTO = event.getTimeSheetDTO();
+        timeSheetDTO.setStatus("new");
+        TimeSheet newTimesheet = timeSheetMapper.timeSheetDTOToTimeSheet(timeSheetDTO);
+
         newTimesheet.setUser(currentUser);
 
-        // Find an existing TimeSheet with the same date
-//        TimeSheet existingTimesheet = timesheetRepository.findByDate(newTimesheet.getDate());
+
         TimeSheet existingTimesheet = timesheetRepository.findByDateAndUser(newTimesheet.getDate(), currentUser);
         if (existingTimesheet != null) {
             // If an existing TimeSheet is found, delete it or update it
             // To delete:
-            timesheetRepository.delete(existingTimesheet);
-            timesheetRepository.flush(); // đánh dấu lệnh delete thưc hiện ngay lập tức( tránh việc delete chưa được thực hiện update thực hiện gây xung đột)
+//            timesheetRepository.delete(existingTimesheet);
+//            timesheetRepository.flush(); // đánh dấu lệnh delete thưc hiện ngay lập tức( tránh việc delete chưa được thực hiện update thực hiện gây xung đột)
             // Or to update:
             existingTimesheet.setProject(newTimesheet.getProject());
             existingTimesheet.setTask(newTimesheet.getTask());
@@ -67,11 +76,12 @@ public class TimesheetEventListener {
     @Transactional
     @EventListener
     public void handleSubmitWeek(SubmitWeekEvent event) {
-        TimesheetWeek timesheetWeek = event.getTimesheetWeek();
+        TimeSheetWeekDTO timeSheetWeekDTO = event.getTimeSheetWeekDTO();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
         User currentUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + userEmail)); ;
+        TimesheetWeek timesheetWeek = timeSheetWeekMapper.timeSheetWeekDTOToTimeSheetWeeks(timeSheetWeekDTO);
         timesheetWeek.setUser(currentUser);
         Long userId = currentUser.getId();
         LocalDate weekStartDate = timesheetWeek.getWeekStartDate();
@@ -89,13 +99,15 @@ public class TimesheetEventListener {
 
         // Update the TimesheetWeek object
         timesheetWeek.setTotalHours(totalHours);
+        timeSheetWeekDTO.setTotalHours(totalHours); // để hiển thị kết quả trả về cho client
 
         // Save the TimesheetWeek object to the repository
         timesheetWeekRepository.save(timesheetWeek);
     }
-    @EventListener
-    public void delete(TimesheetTemporarySaveEvent timesheetTemporarySaveEvent) {
-        TimeSheet timeSheet = timesheetTemporarySaveEvent.getTimeSheet();
-        timesheetRepository.delete(timeSheet);
-    }
+//    @EventListener
+//    public void delete(TimesheetTemporarySaveEvent timesheetTemporarySaveEvent) {
+//        TimeSheetDTO timeSheetDTO = timesheetTemporarySaveEvent.getTimeSheetDTO();
+//        TimeSheet timeSheet = timeSheetMapper.timeSheetDTOToTimeSheet(timeSheetDTO);
+//        timesheetRepository.delete(timeSheet);
+//    }
 }

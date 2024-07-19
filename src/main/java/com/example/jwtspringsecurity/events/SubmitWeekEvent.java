@@ -1,17 +1,18 @@
 package com.example.jwtspringsecurity.events;
 
+import com.example.jwtspringsecurity.dto.TimeSheetWeekDTO;
 import com.example.jwtspringsecurity.enities.TimesheetWeek;
 import org.springframework.context.ApplicationEvent;
 
 public class SubmitWeekEvent extends ApplicationEvent {
-    private TimesheetWeek timesheetWeek;
+    private TimeSheetWeekDTO timeSheetWeekDTO;
 
-    public SubmitWeekEvent(Object source, TimesheetWeek timesheetWeek) {
+    public SubmitWeekEvent(Object source, TimeSheetWeekDTO timeSheetWeekDTO) {
         super(source);
-        this.timesheetWeek = timesheetWeek;
+        this.timeSheetWeekDTO = timeSheetWeekDTO;
     }
 
-    public TimesheetWeek getTimesheetWeek() {
-        return timesheetWeek;
+    public TimeSheetWeekDTO getTimeSheetWeekDTO() {
+        return timeSheetWeekDTO;
     }
 }

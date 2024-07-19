@@ -1,5 +1,8 @@
 package com.example.jwtspringsecurity.controller.User;
 
+import com.example.jwtspringsecurity.Mapper.TimeSheetMapper;
+import com.example.jwtspringsecurity.dto.TimeSheetDTO;
+import com.example.jwtspringsecurity.dto.TimeSheetWeekDTO;
 import com.example.jwtspringsecurity.enities.TimeSheet;
 import com.example.jwtspringsecurity.enities.TimesheetWeek;
 import com.example.jwtspringsecurity.events.SubmitWeekEvent;
@@ -18,22 +21,23 @@ public class TimeSheetController {
     private ApplicationEventPublisher eventPublisher;
     @Autowired
     private TimeSheetRepo timesheetRepository;
-
+    @Autowired
+    private TimeSheetMapper timeSheetMapper;
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/temporary-save")
-    public ResponseEntity<TimeSheet> temporarySave(@RequestBody TimeSheet timeSheet) {
-        TimesheetTemporarySaveEvent event = new TimesheetTemporarySaveEvent(this, timeSheet);
+    public ResponseEntity<TimeSheetDTO> temporarySave(@RequestBody TimeSheetDTO timeSheetDTO) {
+        TimesheetTemporarySaveEvent event = new TimesheetTemporarySaveEvent(this, timeSheetDTO);
         eventPublisher.publishEvent(event);
-        return ResponseEntity.ok(timeSheet);
+        return ResponseEntity.ok(event.getTimeSheetDTO());
     }
 
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/submit-week")
-    public ResponseEntity<TimesheetWeek> submitWeek(@RequestBody TimesheetWeek timesheetWeek) {
-        SubmitWeekEvent event = new SubmitWeekEvent(this, timesheetWeek);
+    public ResponseEntity<TimeSheetWeekDTO> submitWeek(@RequestBody TimeSheetWeekDTO timeSheetWeekDTO) {
+        SubmitWeekEvent event = new SubmitWeekEvent(this, timeSheetWeekDTO);
         eventPublisher.publishEvent(event);
-        return ResponseEntity.ok(timesheetWeek);
+        return ResponseEntity.ok(event.getTimeSheetWeekDTO());
     }
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/delete/{id}")
@@ -42,8 +46,7 @@ public class TimeSheetController {
         if (timeSheet == null) {
             return ResponseEntity.notFound().build();
         }
-        TimesheetTemporarySaveEvent event = new TimesheetTemporarySaveEvent(this, timeSheet);
-        eventPublisher.publishEvent(event);
+        timesheetRepository.delete(timeSheet);
         return ResponseEntity.ok().body("Đã xóa thành công ");
     }
 }
