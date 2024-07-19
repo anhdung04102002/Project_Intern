@@ -1,6 +1,7 @@
 package com.example.jwtspringsecurity.enities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -57,8 +58,11 @@ public class User {
     public boolean isStatus() {
         return status;
     }
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TimeSheet> timesheets;
+
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TimesheetWeek> timesheetWeeks;
 }

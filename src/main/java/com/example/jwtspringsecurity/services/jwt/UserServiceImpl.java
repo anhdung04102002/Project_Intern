@@ -29,14 +29,10 @@ public class UserServiceImpl implements UserDetailsService {
         }
 
 // lấy tên quyền của user với name của entity ROLE tương ứng -> ánh xạ sang ROLE trong spring security thì lúc này code mới  hiểu được đó là role nào và phân quyền phạm vi truy cập cho người dùng
-        var authorities = user.getUserRoles().stream()
+        var authorities = user.getUserRoles().stream() // chuyển thành luồng dữ liệu quản lí bởi stream
                 .map(UserRole::getRole)
-//                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
-
                 .collect(Collectors.toSet());
-
-//        return new User(user.getEmail(), user.getPassword(), Collections.emptyList());
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
 
     }

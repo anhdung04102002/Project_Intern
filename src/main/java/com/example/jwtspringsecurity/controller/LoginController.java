@@ -72,14 +72,13 @@ public class LoginController {
         // logic có thể được thêm vào đây
         return ResponseEntity.ok(new LoginReponse(jwt,refreshToken,roles));
     }
-    // Trong LoginController.java
 
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
         try {
             String refreshToken = request.get("refreshToken");
             if (refreshToken != null) {
-                refreshToken = refreshToken.replace("\"", "").trim(); // Loại bỏ dấu ngoặc kép và khoảng trắng
+//                refreshToken = refreshToken.replace("\"", "").trim(); // Loại bỏ dấu ngoặc kép và khoảng trắng
 
                 // Validate và extract thông tin từ refresh token
                 String username = jwtUtil.extractUsername(refreshToken, true);
