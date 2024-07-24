@@ -46,7 +46,7 @@ public class LeaveOffRequestServiceImpl implements LeaveOffRequestService {
         if (leaveOffRequestDT0.getDate() == null) {
             throw new IllegalArgumentException("The date field must not be null");
         }
-        RequestLeave requestLeave = requestMapper.leaveOffRequestDT0ToRequestLeave(leaveOffRequestDT0);
+        RequestLeave requestLeave = requestMapper.leaveOffRequestDT0ToRequestLeaves(leaveOffRequestDT0);
         LeaveType leaveType = leaveTypeRepository.findById(leaveOffRequestDT0.getLeaveTypeId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid leave type ID"));
         requestLeave.setLeaveType(leaveType);

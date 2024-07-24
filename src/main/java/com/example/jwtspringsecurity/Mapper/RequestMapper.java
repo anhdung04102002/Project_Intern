@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
 public interface RequestMapper {
 
     LeaveOffRequestDT0 requestLeaveToLeaveOffRequestDT0(RequestLeave requestLeave);
-    RequestLeave leaveOffRequestDT0ToRequestLeave(LeaveOffRequestDT0 leaveOffRequestDT0);
+    RequestLeave leaveOffRequestDT0ToRequestLeaves(LeaveOffRequestDT0 leaveOffRequestDT0);
 
     LeaveRemoteOrOnsiteRequestDTO requestLeaveToLeaveRemoteOrOnsiteRequestDTO(RequestLeave requestLeave);
     RequestLeave leaveRemoteOrOnsiteRequestDTOToRequestLeave(LeaveRemoteOrOnsiteRequestDTO leaveRemoteOrOnsiteRequestDTO);

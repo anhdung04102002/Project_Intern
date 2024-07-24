@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -29,9 +30,10 @@ public class AdminServiceImpl implements AdminService {
     private UserRoleRepo userRoleRepo;
     @Autowired
     private UserMapper userMapper; // Inject UserMapper
+    @Transactional
     @Override
     public User addUser(UserDTO userDTO) {
-        User user = userMapper.userDTOToUser(userDTO); // Map UserDTO to User
+        User user = userMapper.userDTOToUsers(userDTO); // Map UserDTO to User
 
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 

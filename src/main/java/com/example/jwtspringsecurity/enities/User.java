@@ -58,11 +58,14 @@ public class User {
     public boolean isStatus() {
         return status;
     }
-
+    @JsonBackReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TimeSheet> timesheets;
 
-
+    @JsonBackReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TimesheetWeek> timesheetWeeks;
+    @JsonBackReference
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Attendance attendance;
 }

@@ -32,7 +32,7 @@ public class LoginController {
     @Autowired
     private JwtUtil jwtUtil;
     @Autowired
-    private AuthenticationManager authenticationManager; // phải được cấu hình  webSecurityConfiguration
+    private AuthenticationManager  authenticationManager; // phải được cấu hình  webSecurityConfiguration
     @Autowired
     private UserServiceImpl UserService;
 

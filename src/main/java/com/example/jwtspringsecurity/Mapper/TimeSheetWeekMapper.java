@@ -7,6 +7,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 
 public interface TimeSheetWeekMapper {
-    TimesheetWeek timeSheetWeekDTOToTimeSheetWeeks(TimeSheetWeekDTO timeSheetWeekDTO);
+    TimesheetWeek timeSheetWeekDTOToTimeSheetWeek(TimeSheetWeekDTO timeSheetWeekDTO);
     TimeSheetWeekDTO timeSheetWeekToTimeSheetWeekDTO(TimesheetWeek timeSheetWeek);
 }

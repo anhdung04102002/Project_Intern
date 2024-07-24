@@ -28,7 +28,7 @@ public class AdminClientServiceImpl implements AdminClientService {
             String code = convertNameToCode(client.getName());
             client.setCode(code);
         });
-
+        clientRepo.saveAll(clients);
         return clients;
     }
 

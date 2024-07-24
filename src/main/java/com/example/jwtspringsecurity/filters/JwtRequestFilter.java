@@ -57,7 +57,7 @@ public class JwtRequestFilter extends OncePerRequestFilter { //bộ lọc thực
             } catch (Exception ignored) {
                 // Ignore nếu không validate được
             }
-
+// thiết lập thông tin ngưi dùng vào SecurityContextHolder
             if (isTokenValid) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

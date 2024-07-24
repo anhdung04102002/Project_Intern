@@ -47,7 +47,7 @@ public class RegisterTimeServiceImpl implements RegisterTimeService {
         registerTimeDTO.setRequestTime(parsedTime);
 
         // Convert DTO to entity
-        RegisterTime registerTime = registerTimeMapper.REGISTER_TIME_DTO_TO_REGISTER_TIME(registerTimeDTO);
+        RegisterTime registerTime = registerTimeMapper.REGISTER_TIME_DTO_TO_REGISTER_TIMEs(registerTimeDTO);
 
         registerTime.setUser(currentUser); // Assuming RegisterTime has a field for the user ID and a setter method
 
@@ -62,7 +62,7 @@ public class RegisterTimeServiceImpl implements RegisterTimeService {
 
 
         // Convert entity back to DTO
-        return registerTimeMapper.REGISTER_TIME_TO_REGISTER_TIME_DTO(registerTime);
+        return registerTimeMapper.REGISTER_TIME_TO_REGISTER_TIME_DTOs(registerTime);
     }
 
     @Override

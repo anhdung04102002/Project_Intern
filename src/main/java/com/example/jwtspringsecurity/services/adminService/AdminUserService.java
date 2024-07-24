@@ -1,5 +1,6 @@
 package com.example.jwtspringsecurity.services.adminService;
 
+import com.example.jwtspringsecurity.dto.UserDTO;
 import com.example.jwtspringsecurity.enities.LeaveType;
 import com.example.jwtspringsecurity.enities.User;
 import org.springframework.data.domain.Page;
@@ -16,7 +17,7 @@ public interface AdminUserService {
     void deleteUser(long id);
     Page<User> getAllUserwithPage(int page, int size);
     User getById(Long id);
-    User updateUser(User user);
+    User updateUser(UserDTO userDTO);
     List<User> findByStatus(boolean status);
     Page<User> getAllUserWithPageAndStatus(Boolean status, int page, int size);
     Page<User> search(String keyword, int page, int size);

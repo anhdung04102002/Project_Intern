@@ -47,7 +47,7 @@ public class TimesheetEventListener {
 
         TimeSheetDTO timeSheetDTO = event.getTimeSheetDTO();
         timeSheetDTO.setStatus("new");
-        TimeSheet newTimesheet = timeSheetMapper.timeSheetDTOToTimeSheet(timeSheetDTO);
+        TimeSheet newTimesheet = timeSheetMapper.timeSheetDTOToTimeSheets(timeSheetDTO);
 
         newTimesheet.setUser(currentUser);
 
@@ -81,7 +81,7 @@ public class TimesheetEventListener {
         String userEmail = authentication.getName();
 
         User currentUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + userEmail)); ;
-        TimesheetWeek timesheetWeek = timeSheetWeekMapper.timeSheetWeekDTOToTimeSheetWeeks(timeSheetWeekDTO);
+        TimesheetWeek timesheetWeek = timeSheetWeekMapper.timeSheetWeekDTOToTimeSheetWeek(timeSheetWeekDTO);
         timesheetWeek.setUser(currentUser);
         Long userId = currentUser.getId();
         LocalDate weekStartDate = timesheetWeek.getWeekStartDate();

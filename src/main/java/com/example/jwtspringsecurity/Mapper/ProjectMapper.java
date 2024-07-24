@@ -7,6 +7,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 
 public interface ProjectMapper {
-    Project projectCreations(ProjectCreationRequest projectCreationRequest);
+    Project projectCreation(ProjectCreationRequest projectCreationRequest);
     ProjectCreationRequest projectToProjectCreationRequest(Project project);
 }

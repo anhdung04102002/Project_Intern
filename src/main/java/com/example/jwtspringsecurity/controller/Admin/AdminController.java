@@ -1,5 +1,6 @@
 package com.example.jwtspringsecurity.controller.Admin;
 
+import com.example.jwtspringsecurity.Mapper.UserMapper;
 import com.example.jwtspringsecurity.dto.ApiResponse;
 import com.example.jwtspringsecurity.dto.BranchNotFoundException;
 import com.example.jwtspringsecurity.dto.UserDTO;
@@ -7,6 +8,7 @@ import com.example.jwtspringsecurity.dto.UserNotFoundException;
 import com.example.jwtspringsecurity.enities.User;
 import com.example.jwtspringsecurity.services.adminService.AdminService;
 import com.example.jwtspringsecurity.services.adminService.AdminUserService;
+import com.example.jwtspringsecurity.services.adminService.EmailService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,7 +32,10 @@ public class AdminController {
     private AdminUserService adminUserService;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+    @Autowired
+    private UserMapper userMapper;
+    @Autowired
+    private EmailService emailService;
     @PostMapping("/user_add")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addUser(@RequestBody UserDTO userDTO) {
@@ -40,6 +45,11 @@ public class AdminController {
                     .body("Email already exists");
         }
         User newUser = adminService.addUser(userDTO);
+        String subject = "Welcome to the NCC PLUS";
+        String body = String.format("Xin Chào %s,\n\nTài khoản của bạn để truy cập công ty : .\n\nEmail: %s\nPassword: %s",
+                userDTO.getName(), userDTO.getEmail(), userDTO.getPassword());
+        emailService.sendEmail("anhdung04102002@gmail.com", subject, body);
+
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
@@ -81,10 +91,10 @@ public class AdminController {
     // Controller layer
     @PutMapping("/user_update")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> updateUser(@RequestBody User updatedUser) {
+    public ResponseEntity<?> updateUser(@RequestBody UserDTO updatedUserDTO) {
         try {
-            User savedUser = adminUserService.updateUser(updatedUser);
-            return ResponseEntity.ok(savedUser);
+            User savedUser = adminUserService.updateUser(updatedUserDTO);
+            return ResponseEntity.ok(userMapper.USER_DTOToUser(savedUser));
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", "User not found: " + e.getMessage()));
         } catch (BranchNotFoundException e) {

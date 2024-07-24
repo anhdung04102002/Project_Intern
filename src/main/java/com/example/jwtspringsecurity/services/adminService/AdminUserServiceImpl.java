@@ -1,7 +1,9 @@
 package com.example.jwtspringsecurity.services.adminService;
 
+import com.example.jwtspringsecurity.Mapper.UserMapper;
 import com.example.jwtspringsecurity.controller.Admin.PasswordGenerator;
 import com.example.jwtspringsecurity.dto.BranchNotFoundException;
+import com.example.jwtspringsecurity.dto.UserDTO;
 import com.example.jwtspringsecurity.dto.UserNotFoundException;
 import com.example.jwtspringsecurity.enities.*;
 import com.example.jwtspringsecurity.repositories.*;
@@ -36,6 +38,8 @@ public class AdminUserServiceImpl implements AdminUserService {
     private UserRoleRepo userRoleRepo;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public List<User> getAllUser() {
@@ -71,11 +75,13 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Transactional
     @Override
-    public User updateUser(User updatedUser) {
+    public User updateUser(UserDTO updatedUserDTO) {
         // Ensure user exists before updating
-        Long userId = updatedUser.getId();
+        Long userId = updatedUserDTO.getId();
         User existingUser = userRepo.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
         // Xóa tất cả UserRole cũ
+        User updatedUser = userMapper.userDTOToUsers(updatedUserDTO);
+
         List<UserRole> userRoles = userRoleRepo.findByUser(existingUser);
         userRoleRepo.deleteAll(userRoles);
 
@@ -94,21 +100,21 @@ public class AdminUserServiceImpl implements AdminUserService {
             existingUser.setSex(updatedUser.isSex());
 //            existingUser.setPosition(updatedUser.getPosition());
 //            existingUser.setBranch(updatedUser.getBranch());
-            Position updatedPosition = updatedUser.getPosition();
-            if (updatedPosition != null) {
-                Position exitingPosition = positionRepo.findById(updatedPosition.getId()).orElseThrow(() -> new EntityNotFoundException("Position not found with id: " + updatedPosition.getId()));
-                existingUser.setPosition(exitingPosition);
-            }
+//            Position updatedPosition = updatedUser.getPosition();
+//            if (updatedPosition != null) {
+//                Position exitingPosition = positionRepo.findById(updatedPosition.getId()).orElseThrow(() -> new EntityNotFoundException("Position not found with id: " + updatedPosition.getId()));
+//                existingUser.setPosition(exitingPosition);
+//            }
 
             // Check if branch exists in the database before setting
-            Branch updatedBranch = updatedUser.getBranch();
-            if (updatedBranch != null) {
-                Branch existingBranch = branchRepo.findById(updatedBranch.getId()).orElseThrow(() -> new BranchNotFoundException("Branch not found with id: " + updatedBranch.getId()));
-                existingUser.setBranch(existingBranch);
+            if (updatedUserDTO.getBranchId() != null) {
+                Branch branch = branchRepo.findById(updatedUserDTO.getBranchId())
+                        .orElseThrow(() -> new BranchNotFoundException("Branch not found with id: " + updatedUserDTO.getBranchId()));
+                existingUser.setBranch(branch);
             }
 
 
-            assignRole(existingUser, updatedUser.getEmail());
+            assignRole(existingUser, updatedUserDTO.getEmail());
             return userRepo.save(existingUser);
         } else {
             // Handle case where user does not exist

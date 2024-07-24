@@ -58,7 +58,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Project createProject(ProjectCreationRequest request) {
         // Tạo đối tượng Project từ request
-        Project project = projectMapper.projectCreations(request);
+        Project project = projectMapper.projectCreation(request);
 
         // Lưu đối tượng Project trước để tránh lỗi TransientObjectException
         Project savedProject = projectRepo.save(project);
