@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,7 +37,7 @@ public class WebSecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeRequests(authorize -> authorize
                         .requestMatchers("/login","/signup").permitAll()
-//
+
                         .requestMatchers("/api/**").authenticated()// yêu cầu người dùng phải xác thực = token
                         .requestMatchers("/api/user/**").hasRole("USER")
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -44,8 +45,9 @@ public class WebSecurityConfiguration {
 
 
                 )
+                .oauth2Login(Customizer.withDefaults())
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // không duy trì bất kì trạng thái phiên nào giữa các yêu cầu phía client
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -57,7 +59,8 @@ public class WebSecurityConfiguration {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager(); // cung cấp các thành phần liên quan đến xác thực và phân quyền
-    }
+    } // gọi getAuthenticationManager đã được cấu hình với các AuthenticationProvider
+    // AuthenticationProviderlà interface và được DaoAuthenticationProvider triển khai
 
 
 //    @Bean
