@@ -80,7 +80,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         Long userId = updatedUserDTO.getId();
         User existingUser = userRepo.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
         // Xóa tất cả UserRole cũ
-        User updatedUser = userMapper.userDTOToUsers(updatedUserDTO);
+        User updatedUser = userMapper.userDTOToUser(updatedUserDTO);
 
         List<UserRole> userRoles = userRoleRepo.findByUser(existingUser);
         userRoleRepo.deleteAll(userRoles);

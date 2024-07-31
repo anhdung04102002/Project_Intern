@@ -74,7 +74,7 @@ public class RegisterTimeServiceImpl implements RegisterTimeService {
 
 
         List<RegisterTime> approvedTimes = registerTimeRepo.findByUserIdAndStatusAndDateBeforeOrderByDateDesc(currentUser.getId(),"APPROVE", today.plusDays(1)); // tìm tất cả các ngày trạng thái approve trước ngày hôm sau (tính cho hôm nay)
-
+        // tìm trạng thái ngày được approve gần nhất
         if (!approvedTimes.isEmpty()) {
             RegisterTime latestApprovedTime = approvedTimes.get(0);
             return mapToDto(latestApprovedTime);

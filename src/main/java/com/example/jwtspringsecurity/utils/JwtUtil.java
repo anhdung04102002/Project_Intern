@@ -31,13 +31,13 @@ public class JwtUtil {
         return extractClaim(token, Claims::getExpiration, isRefreshToken);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver, boolean isRefreshToken) {
-        final Claims claims = extractAllClaims(token, isRefreshToken);
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver, boolean isRefreshToken) { // xử lí hàm lấy thông tin cụ thể trong token
+        final Claims claims = extractAllClaims(token, isRefreshToken); // claim đại diện cho tất cả thông tin trong token
         return claimsResolver.apply(claims);
     }
 
     private Claims extractAllClaims(String token, boolean isRefreshToken) {
-        String key = isRefreshToken ? SECRET_KEY_REFRESH_TOKEN : SECRET_KEY; // toán  tử ba ngôi
+        String key = isRefreshToken ? SECRET_KEY_REFRESH_TOKEN : SECRET_KEY;        // toán  tử ba ngôi
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey(key))
                 .build()
@@ -73,7 +73,7 @@ public class JwtUtil {
     private String createToken(Map<String, Object> claims, String username) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(username)
+                .setSubject(username)  // claim chứa thông tin về tên người dùng chứ không phải là thông tin về quyền
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 ))
                 .signWith(SignatureAlgorithm.HS256, getSigningKey(SECRET_KEY))

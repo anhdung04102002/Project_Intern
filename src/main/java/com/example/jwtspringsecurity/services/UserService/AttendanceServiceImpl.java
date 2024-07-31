@@ -54,7 +54,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         return attendanceMapper.ATTENDANCE_TO_ATTENDANCE_DTO(savedAttendance);
     }
-    private void calculateAndApplyPunishment(RegisterTimeDTO currentTimeDTO, AttendanceRequestDto attendanceRequestDTO,Attendance todayAttendance) {
+    public void calculateAndApplyPunishment(RegisterTimeDTO currentTimeDTO, AttendanceRequestDto attendanceRequestDTO, Attendance todayAttendance) {
         LocalTime currentTimeDTOCheckIn = currentTimeDTO.getCheckIn();
         LocalTime currentTimeDTOCheckOut = currentTimeDTO.getCheckOut();
         LocalTime checkIn = attendanceRequestDTO.getCheckIn();
@@ -72,7 +72,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         } else { // xử lí các trường hợp đến muộn
             if(Duration.between(currentTimeDTOCheckIn, checkIn).toMinutes() > 15) {
                 punishment += 20;
-                late = (int) Duration.between(checkIn, currentTimeDTOCheckIn).toMinutes();
+                late = (int) Duration.between(currentTimeDTOCheckIn,checkIn ).toMinutes();
             }
             if(Duration.between(checkOut, currentTimeDTOCheckOut).toMinutes() > 15) {
                 punishment += 20;

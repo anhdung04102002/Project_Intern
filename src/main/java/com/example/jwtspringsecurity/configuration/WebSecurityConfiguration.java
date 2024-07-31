@@ -48,7 +48,7 @@ public class WebSecurityConfiguration {
                 .oauth2Login(Customizer.withDefaults())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // không duy trì bất kì trạng thái phiên nào giữa các yêu cầu phía client
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class) // UsernamePasswordAuthenticationFilter -> lớp xác thực nguời dùng dựa trên tài khoản và mk
                 .build();
     }
     // mã hóa password

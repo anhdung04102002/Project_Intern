@@ -33,7 +33,7 @@ public class AdminServiceImpl implements AdminService {
     @Transactional
     @Override
     public User addUser(UserDTO userDTO) {
-        User user = userMapper.userDTOToUsers(userDTO); // Map UserDTO to User
+        User user = userMapper.userDTOToUser(userDTO); // Map UserDTO to User
 
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 

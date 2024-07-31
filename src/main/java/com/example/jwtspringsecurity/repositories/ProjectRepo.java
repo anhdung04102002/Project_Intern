@@ -14,6 +14,6 @@ public interface ProjectRepo extends JpaRepository<Project, Long> {
     boolean existsByName(String name);
     Optional<Project> findByName(String name);
     @Query("SELECT t FROM Task t WHERE t.project.id = :projectId")
-    @Cacheable("projectsCache")
+//    @Cacheable("projectsCache")
     List<Task> findTasksByProjectId(@Param("projectId") Long projectId);
 }

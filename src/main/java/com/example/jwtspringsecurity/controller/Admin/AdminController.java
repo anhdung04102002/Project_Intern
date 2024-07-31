@@ -94,7 +94,7 @@ public class AdminController {
     public ResponseEntity<?> updateUser(@RequestBody UserDTO updatedUserDTO) {
         try {
             User savedUser = adminUserService.updateUser(updatedUserDTO);
-            return ResponseEntity.ok(userMapper.USER_DTOToUser(savedUser));
+            return ResponseEntity.ok(userMapper.USER_DTOToUsers(savedUser));
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", "User not found: " + e.getMessage()));
         } catch (BranchNotFoundException e) {

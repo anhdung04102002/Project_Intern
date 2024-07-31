@@ -67,7 +67,7 @@ public class LeaveOffRequestServiceImpl implements LeaveOffRequestService {
         if (leaveRemoteOrOnsiteRequestDTO.getDate() == null) {
             throw new IllegalArgumentException("The date field must not be null");
         }
-        RequestLeave requestLeave = requestMapper.leaveRemoteOrOnsiteRequestDTOToRequestLeave(leaveRemoteOrOnsiteRequestDTO);
+        RequestLeave requestLeave = requestMapper.leaveRemoteOrOnsiteRequestDTOToRequestLeaves(leaveRemoteOrOnsiteRequestDTO);
         requestLeave.setUser(currentUser);
         requestLeave.setRequestType(RequestType.ONSITE);
         requestLeave.setStatus("PENDING");
@@ -85,7 +85,7 @@ public class LeaveOffRequestServiceImpl implements LeaveOffRequestService {
         if (leaveRemoteOrOnsiteRequestDTO.getDate() == null) {
             throw new IllegalArgumentException("The date field must not be null");
         }
-        RequestLeave requestLeave = requestMapper.leaveRemoteOrOnsiteRequestDTOToRequestLeave(leaveRemoteOrOnsiteRequestDTO);
+        RequestLeave requestLeave = requestMapper.leaveRemoteOrOnsiteRequestDTOToRequestLeaves(leaveRemoteOrOnsiteRequestDTO);
         requestLeave.setUser(currentUser);
         requestLeave.setRequestType(RequestType.REMOTE);
         requestLeave.setStatus("PENDING");

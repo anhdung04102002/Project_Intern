@@ -34,7 +34,7 @@ public class JwtRequestFilter extends OncePerRequestFilter { //bộ lọc thực
             token = authorizationHeader.substring(7);
             try {
                 // Giải mã token sử dụng SECRET_KEY (token chính)
-                username = jwtUtil.extractUsername(token, false);
+                username = jwtUtil.extractUsername(token, false); // xác định xem có username này k
             } catch (Exception e) {
                 // Ignore nếu không giải mã được
             }
@@ -46,7 +46,7 @@ public class JwtRequestFilter extends OncePerRequestFilter { //bộ lọc thực
             return;
         }
 
-
+// login chạy vào đây
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             var userDetails = UserService.loadUserByUsername(username);
             boolean isTokenValid = false;
@@ -55,7 +55,7 @@ public class JwtRequestFilter extends OncePerRequestFilter { //bộ lọc thực
                 // Kiểm tra token với SECRET_KEY
                 isTokenValid = jwtUtil.validateToken(token, userDetails, false);
             } catch (Exception ignored) {
-                // Ignore nếu không validate được
+                // Ignore nếu không validate được (Ngoại lệ bị bỏ qua, không có hành động nào được thực hiện)
             }
 // thiết lập thông tin ngưi dùng vào SecurityContextHolder
             if (isTokenValid) {

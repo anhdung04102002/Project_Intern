@@ -2,6 +2,7 @@ package com.example.jwtspringsecurity.services.managerService;
 
 import com.example.jwtspringsecurity.Mapper.ProjectMapper;
 import com.example.jwtspringsecurity.Mapper.UserMapper;
+import com.example.jwtspringsecurity.dto.AddTaskRequest;
 import com.example.jwtspringsecurity.dto.ProjectCreationRequest;
 import com.example.jwtspringsecurity.dto.ResponseUserProject;
 import com.example.jwtspringsecurity.enities.Project;
@@ -11,6 +12,7 @@ import com.example.jwtspringsecurity.repositories.ProjectRepo;
 import com.example.jwtspringsecurity.repositories.TaskRepo;
 import com.example.jwtspringsecurity.repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,8 +39,17 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    @Cacheable("projectsCache")
+    @Cacheable(value = "projectsCache", key = "#projectId")
     public List<Task> getTasksByProjectId(Long projectId) {
+        List<Task> tasks= projectRepo.findTasksByProjectId(projectId); // nếu cache đã tồn tại thì k in ra list task
+        for(int i =0; i < tasks.size(); i++){
+            System.out.println(tasks.get(i).getName());
+        }
+        return projectRepo.findTasksByProjectId(projectId);
+    }
+    @Override
+    @CachePut(value = "projectsCache", key = "#projectId")
+    public List<Task> refreshTasksByProjectId(Long projectId) {
         return projectRepo.findTasksByProjectId(projectId);
     }
 
@@ -49,7 +60,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         List<User> users = project.getUsers(); // Assuming there's a getUsers method in Project entity
         List<ResponseUserProject> responseUserProjects = users.stream()
-                .map(userMapper::userToResponseUserProject) // Assuming userMapper is already injected
+                .map(userMapper::userToResponseUserProjects) // Assuming userMapper is already injected
                 .collect(Collectors.toList());
         return responseUserProjects;
 
@@ -58,7 +69,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Project createProject(ProjectCreationRequest request) {
         // Tạo đối tượng Project từ request
-        Project project = projectMapper.projectCreation(request);
+        Project project = projectMapper.projectCreations(request);
 
         // Lưu đối tượng Project trước để tránh lỗi TransientObjectException
         Project savedProject = projectRepo.save(project);
@@ -87,6 +98,20 @@ public class ProjectServiceImpl implements ProjectService {
         // Lưu lại Project với các User và Task đã liên kết
         return projectRepo.save(project);
     }
+    @Override
+    @Transactional
+    public Project addTaskToProject(Long projectId, AddTaskRequest request) {
+        Project project = projectRepo.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectId));
+        Task task = new Task();
+        task.setName(request.getName());
+        task.setProject(project);
+
+        project.getTasks().add(task);
+        taskRepo.save(task);
+        return projectRepo.save(project);
+    }
+
 //    @Transactional
 //    @Override
 //    public Project updateProject(Long projectId, ProjectCreationRequest request) {

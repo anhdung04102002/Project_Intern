@@ -1,5 +1,6 @@
 package com.example.jwtspringsecurity.controller.Manager;
 
+import com.example.jwtspringsecurity.dto.AddTaskRequest;
 import com.example.jwtspringsecurity.dto.ProjectCreationRequest;
 import com.example.jwtspringsecurity.dto.ResponseUserProject;
 import com.example.jwtspringsecurity.enities.Project;
@@ -27,6 +28,22 @@ public class ProjectController  {
     @GetMapping("/projects_getTasks/{projectId}")
     public ResponseEntity<List<Task>> getTasksByProjectId(@PathVariable Long projectId) {
         List<Task> tasks = projectService.getTasksByProjectId(projectId);
+        return ResponseEntity.ok(tasks);
+    }
+
+    @PreAuthorize("hasRole('MANAGER')")
+    @GetMapping("/projects_refTasks/{projectId}")
+    public ResponseEntity<List<Task>> refreshCache(@PathVariable Long projectId) {
+        List<Task> tasks = projectService.refreshTasksByProjectId(projectId);
+        return ResponseEntity.ok(tasks);
+    }
+    @PreAuthorize("hasRole('MANAGER')")
+    @PostMapping("/projects_addTask/{projectId}")
+    public ResponseEntity<?> addTaskToProject(@PathVariable Long projectId, @RequestBody AddTaskRequest request) {
+        Project project = projectService.addTaskToProject(projectId, request);
+
+        List<Task> tasks = projectService.getTasksByProjectId(projectId);
+
         return ResponseEntity.ok(tasks);
     }
 
